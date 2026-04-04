@@ -1,93 +1,369 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlRoot">
 <head>
   <meta charset="UTF-8" />
-  <title>Finance Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finio — Finance Dashboard</title>
 
+  <!-- Tailwind CDN (Play CDN for development) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
 </head>
+<body class="bg-[var(--bg)] text-[var(--text)] h-screen overflow-hidden font-sans transition-colors duration-300">
 
-<body class="bg-gray-100 p-4">
+<!-- ════════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════ -->
+<div class="flex h-screen overflow-hidden" id="app">
 
-  <!-- Header -->
-  <div class="flex flex-wrap justify-between items-center gap-2 mb-6">
-    <h1 class="text-2xl font-bold">Finance Dashboard</h1>
+  <!-- ── SIDEBAR ─────────────────────────────── -->
+  <aside class="sidebar flex flex-col flex-shrink-0 bg-[var(--bg2)] border-r border-[var(--border)] transition-colors duration-300">
 
-    <div class="flex gap-2 flex-wrap">
-      <select id="roleSwitcher" class="p-2 border rounded">
-        <option value="viewer">Viewer</option>
-        <option value="admin">Admin</option>
+    <!-- Logo -->
+    <div class="px-5 py-6 border-b border-[var(--border)]">
+      <span class="font-display text-[22px] text-[var(--text)] tracking-wide">Finio<span class="text-[var(--accent)]">.</span></span>
+    </div>
+
+    <!-- Role Switcher -->
+    <div class="mx-3 mt-4 px-3 py-3 rounded-xl bg-[var(--accent-dim)] border border-[var(--accent)]/30">
+      <div class="text-[11px] text-[var(--text3)] uppercase tracking-widest mb-1">Role</div>
+      <select id="roleSelect" onchange="setRole(this.value)"
+        class="w-full bg-transparent border-none text-[var(--accent)] font-semibold text-[13px] outline-none cursor-pointer appearance-none">
+        <option value="viewer">👁 Viewer</option>
+        <option value="admin" selected>⚡ Admin</option>
       </select>
+    </div>
 
-      <button onclick="toggleDark()" class="px-3 py-2 bg-black text-white rounded">🌙</button>
+    <!-- Navigation -->
+    <nav class="flex-1 px-3 py-5 space-y-1">
+      <div class="text-[10px] text-[var(--text3)] uppercase tracking-widest px-2 mb-2">Main</div>
 
-      <button onclick="exportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded">
-        Export
+      <div class="nav-item active flex items-center gap-3 px-3 py-2 rounded-xl text-[13.5px] cursor-pointer transition-all"
+           onclick="navigate('overview', this)">
+        <span class="text-[15px] w-5 flex items-center justify-center">◈</span>
+        Overview
+      </div>
+
+      <div class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-[13.5px] cursor-pointer transition-all text-[var(--text2)]"
+           onclick="navigate('transactions', this)">
+        <span class="text-[15px] w-5 flex items-center justify-center">⇄</span>
+        Transactions
+      </div>
+
+      <div class="text-[10px] text-[var(--text3)] uppercase tracking-widest px-2 mt-4 mb-2">Analysis</div>
+
+      <div class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-[13.5px] cursor-pointer transition-all text-[var(--text2)]"
+           onclick="navigate('insights', this)">
+        <span class="text-[15px] w-5 flex items-center justify-center">◎</span>
+        Insights
+      </div>
+    </nav>
+
+    <!-- Theme Toggle -->
+    <div class="px-3 pb-4 border-t border-[var(--border)] pt-4">
+      <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-[var(--bg3)] cursor-pointer text-[13px] text-[var(--text2)]"
+           onclick="toggleTheme()">
+        <span>Dark mode</span>
+        <div class="toggle-switch" id="themeSwitch">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN CONTENT ────────────────────────── -->
+  <main class="flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]">
+
+    <!-- ══ PAGE: OVERVIEW ══════════════════════ -->
+    <section class="page active p-7" id="page-overview">
+
+      <!-- Header -->
+      <div class="flex items-start justify-between flex-wrap gap-3 mb-7">
+        <div>
+          <h1 class="font-display text-[28px] text-[var(--text)] leading-tight">Good morning ✦</h1>
+          <p class="text-[13px] text-[var(--text3)] mt-1">Here's your financial snapshot for <span id="todayDate"></span></p>
+        </div>
+        <div class="flex gap-2 flex-wrap items-center">
+          <button id="addTxnBtn" onclick="openModal()"
+            class="btn-accent px-4 py-2 rounded-xl text-[13px] font-semibold transition-all">
+            + Add Transaction
+          </button>
+          <button onclick="exportData()"
+            class="px-4 py-2 rounded-xl border border-[var(--border2)] bg-[var(--bg2)] text-[var(--text2)] text-[13px] font-medium hover:text-[var(--text)] hover:border-[var(--text3)] transition-all">
+            ↓ Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+        <!-- Balance -->
+        <div class="card card-balance p-4 rounded-[18px] bg-[var(--bg2)] border border-[var(--border)]">
+          <div class="text-[12px] text-[var(--text3)] uppercase tracking-widest mb-2">Total Balance</div>
+          <div class="text-[26px] font-semibold text-[var(--text)] leading-none">
+            ₹<span id="stat-balance">0</span>
+          </div>
+          <div class="card-change up mt-2 inline-flex items-center gap-1 text-[12px] font-medium px-2 py-1 rounded-md" id="stat-balance-change">↑ 0%</div>
+        </div>
+        <!-- Income -->
+        <div class="card card-income p-4 rounded-[18px] bg-[var(--bg2)] border border-[var(--border)]">
+          <div class="text-[12px] text-[var(--text3)] uppercase tracking-widest mb-2">Total Income</div>
+          <div class="text-[26px] font-semibold text-[var(--text)] leading-none">
+            ₹<span id="stat-income">0</span>
+          </div>
+          <div class="card-change up mt-2 inline-flex items-center gap-1 text-[12px] font-medium px-2 py-1 rounded-md" id="stat-income-change">↑ 0%</div>
+        </div>
+        <!-- Expenses -->
+        <div class="card card-expense p-4 rounded-[18px] bg-[var(--bg2)] border border-[var(--border)]">
+          <div class="text-[12px] text-[var(--text3)] uppercase tracking-widest mb-2">Total Expenses</div>
+          <div class="text-[26px] font-semibold text-[var(--text)] leading-none">
+            ₹<span id="stat-expense">0</span>
+          </div>
+          <div class="card-change down mt-2 inline-flex items-center gap-1 text-[12px] font-medium px-2 py-1 rounded-md" id="stat-expense-change">↑ 0%</div>
+        </div>
+        <!-- Savings -->
+        <div class="card card-savings p-4 rounded-[18px] bg-[var(--bg2)] border border-[var(--border)]">
+          <div class="text-[12px] text-[var(--text3)] uppercase tracking-widest mb-2">Savings Rate</div>
+          <div class="text-[26px] font-semibold text-[var(--text)] leading-none" id="stat-savings">0%</div>
+          <div class="card-change up mt-2 inline-flex items-center gap-1 text-[12px] font-medium px-2 py-1 rounded-md">▲ healthy</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+        <!-- Trend Chart -->
+        <div class="p-5 rounded-[18px] bg-[var(--bg2)] border border-[var(--border)]">
+          <div class="text-[12px] text-[var(--text3)] uppercase tracking-widest mb-4">Balance Trend — Last 6 Months</div>
+          <div class="chart-container-lg relative w-full">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+        <!-- Donut Chart -->
+        <div class="p-5 rounded-[18px] bg-[var(--bg2)] border border-[var(--border)]">
+          <div class="text-[12px] text-[var(--text3)] uppercase tracking-widest mb-4">Spending by Category</div>
+          <div class="relative">
+            <div class="chart-container-lg relative w-full">
+              <canvas id="donutChart"></canvas>
+            </div>
+            <div class="donut-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+              <div class="text-[18px] font-bold text-[var(--text)]" id="donutTotal">₹0</div>
+              <div class="text-[11px] text-[var(--text3)]">expenses</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="p-5 rounded-[18px] bg-[var(--bg2)] border border-[var(--border)]">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-[12px] text-[var(--text3)] uppercase tracking-widest">Recent Transactions</div>
+          <button onclick="navigate('transactions', null)"
+            class="text-[12px] px-3 py-1.5 rounded-xl border border-[var(--border2)] bg-[var(--bg2)] text-[var(--text2)] hover:text-[var(--text)] transition-all">
+            View all →
+          </button>
+        </div>
+        <table class="txn-table w-full border-collapse">
+          <thead>
+            <tr>
+              <th class="txn-th">Description</th>
+              <th class="txn-th">Category</th>
+              <th class="txn-th">Date</th>
+              <th class="txn-th">Type</th>
+              <th class="txn-th text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody id="recentTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══ PAGE: TRANSACTIONS ═══════════════════ -->
+    <section class="page p-7" id="page-transactions">
+
+      <!-- Header -->
+      <div class="flex items-start justify-between flex-wrap gap-3 mb-7">
+        <div>
+          <h1 class="font-display text-[28px] text-[var(--text)] leading-tight">Transactions</h1>
+          <p class="text-[13px] text-[var(--text3)] mt-1">Full history of your financial activity</p>
+        </div>
+        <button id="addTxnBtn2" onclick="openModal()"
+          class="btn-accent px-4 py-2 rounded-xl text-[13px] font-semibold transition-all">
+          + Add Transaction
+        </button>
+      </div>
+
+      <!-- Table Card -->
+      <div class="p-5 rounded-[18px] bg-[var(--bg2)] border border-[var(--border)]">
+
+        <!-- Filter Bar -->
+        <div class="flex flex-wrap gap-2 mb-4 items-center">
+          <input id="searchInput" type="text" placeholder="Search transactions…"
+            oninput="renderTransactions()"
+            class="search-input flex-1 min-w-[160px] px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--bg2)] text-[var(--text)] text-[13px] outline-none transition-colors placeholder-[var(--text3)]" />
+
+          <select id="filterType" onchange="renderTransactions()"
+            class="filter-select px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--bg2)] text-[var(--text2)] text-[13px] outline-none cursor-pointer">
+            <option value="">All Types</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+
+          <select id="filterCat" onchange="renderTransactions()"
+            class="filter-select px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--bg2)] text-[var(--text2)] text-[13px] outline-none cursor-pointer">
+            <option value="">All Categories</option>
+          </select>
+
+          <select id="filterMonth" onchange="renderTransactions()"
+            class="filter-select px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--bg2)] text-[var(--text2)] text-[13px] outline-none cursor-pointer">
+            <option value="">All Months</option>
+          </select>
+
+          <button onclick="clearFilters()"
+            class="px-3 py-2 rounded-xl border border-[var(--border2)] bg-[var(--bg2)] text-[var(--text2)] text-[13px] hover:text-[var(--text)] transition-all">
+            ✕ Clear
+          </button>
+        </div>
+
+        <!-- Table -->
+        <table class="txn-table w-full border-collapse">
+          <thead>
+            <tr>
+              <th class="txn-th">Description</th>
+              <th class="txn-th">Category</th>
+              <th class="txn-th cursor-pointer" onclick="setSortBy('date')">
+                Date <button class="sort-btn" id="sort-date">↕</button>
+              </th>
+              <th class="txn-th">Type</th>
+              <th class="txn-th text-right cursor-pointer" onclick="setSortBy('amount')">
+                Amount <button class="sort-btn" id="sort-amount">↕</button>
+              </th>
+              <th class="txn-th text-center" id="editColHeader"></th>
+            </tr>
+          </thead>
+          <tbody id="txnTbody"></tbody>
+        </table>
+
+        <!-- Footer -->
+        <div class="flex items-center justify-between pt-3 text-[12px] text-[var(--text3)]">
+          <span id="txnCount">0 transactions</span>
+          <span id="txnTotal"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ PAGE: INSIGHTS ═══════════════════════ -->
+    <section class="page p-7" id="page-insights">
+
+      <!-- Header -->
+      <div class="mb-7">
+        <h1 class="font-display text-[28px] text-[var(--text)] leading-tight">Insights</h1>
+        <p class="text-[13px] text-[var(--text3)] mt-1">Patterns and observations from your data</p>
+      </div>
+
+      <!-- Insight Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-5" id="insightCards"></div>
+
+      <!-- Monthly Bar Chart -->
+      <div class="p-5 rounded-[18px] bg-[var(--bg2)] border border-[var(--border)] mb-5">
+        <div class="text-[12px] text-[var(--text3)] uppercase tracking-widest mb-4">Monthly Income vs Expenses</div>
+        <div class="chart-container-lg relative w-full">
+          <canvas id="monthlyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Spending Breakdown -->
+      <div class="p-5 rounded-[18px] bg-[var(--bg2)] border border-[var(--border)]">
+        <div class="text-[12px] text-[var(--text3)] uppercase tracking-widest mb-3">Spending Breakdown by Category</div>
+        <div id="spendingBreakdown"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ════════════════════════════════════════════
+     ADD / EDIT TRANSACTION MODAL
+════════════════════════════════════════════ -->
+<div class="modal-overlay hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+     id="txnModal" onclick="closeModalOnBg(event)">
+    <div class="modal bg-[var(--bg2)] border border-[var(--border2)] rounded-[24px] p-7 w-full max-w-[440px] shadow-2xl">
+    <h2 class="font-display text-[20px] text-[var(--text)] mb-5" id="modalTitle">New Transaction</h2>
+
+    <!-- Description -->
+    <div class="mb-4">
+      <label class="block text-[12px] text-[var(--text3)] uppercase tracking-[0.8px] mb-1.5">Description</label>
+      <input id="f-desc" type="text" placeholder="e.g. Monthly Rent"
+        class="form-input w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg3)] text-[var(--text)] text-[13.5px] outline-none transition-colors" />
+    </div>
+
+    <!-- Amount + Type -->
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div>
+        <label class="block text-[12px] text-[var(--text3)] uppercase tracking-[0.8px] mb-1.5">Amount (₹)</label>
+        <input id="f-amount" type="number" min="1" placeholder="0"
+          class="form-input w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg3)] text-[var(--text)] text-[13.5px] outline-none transition-colors" />
+      </div>
+      <div>
+        <label class="block text-[12px] text-[var(--text3)] uppercase tracking-[0.8px] mb-1.5">Type</label>
+        <select id="f-type"
+          class="form-input w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg3)] text-[var(--text)] text-[13.5px] outline-none cursor-pointer">
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Category + Date -->
+    <div class="grid grid-cols-2 gap-3 mb-5">
+      <div>
+        <label class="block text-[12px] text-[var(--text3)] uppercase tracking-[0.8px] mb-1.5">Category</label>
+        <select id="f-cat"
+          class="form-input w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg3)] text-[var(--text)] text-[13.5px] outline-none cursor-pointer">
+          <option>Food &amp; Dining</option>
+          <option>Housing</option>
+          <option>Transport</option>
+          <option>Shopping</option>
+          <option>Entertainment</option>
+          <option>Health</option>
+          <option>Education</option>
+          <option>Utilities</option>
+          <option>Salary</option>
+          <option>Freelance</option>
+          <option>Investment</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[12px] text-[var(--text3)] uppercase tracking-[0.8px] mb-1.5">Date</label>
+        <input id="f-date" type="date"
+          class="form-input w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg3)] text-[var(--text)] text-[13.5px] outline-none transition-colors" />
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-2">
+      <button onclick="closeModal()"
+        class="px-4 py-2 rounded-xl border border-[var(--border2)] bg-[var(--bg2)] text-[var(--text2)] text-[13px] font-medium hover:text-[var(--text)] transition-all">
+        Cancel
+      </button>
+      <button onclick="saveTransaction()"
+        class="btn-accent px-4 py-2 rounded-xl text-[13px] font-semibold transition-all">
+        Save
       </button>
     </div>
   </div>
+</div>
 
-  <!-- Summary -->
-  <div id="summary" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-
-  <!-- Charts -->
-  <div class="grid md:grid-cols-2 gap-4 mt-6">
-    <canvas id="lineChart"></canvas>
-    <canvas id="pieChart"></canvas>
-  </div>
-
-  <canvas id="monthlyChart" class="mt-6"></canvas>
-
-  <!-- Admin -->
-  <div id="adminSection" class="mt-6 hidden">
-    <h2 class="font-semibold mb-2">Add Transaction</h2>
-    <div class="flex gap-2 flex-wrap">
-      <input id="amount" type="number" placeholder="Amount" class="p-2 border rounded"/>
-      <input id="category" placeholder="Category" class="p-2 border rounded"/>
-      <select id="type" class="p-2 border rounded">
-        <option value="income">Income</option>
-        <option value="expense">Expense</option>
-      </select>
-      <button onclick="addTransaction()" class="bg-blue-500 text-white px-4 py-2 rounded">Add</button>
-    </div>
-  </div>
-
-  <!-- Filters -->
-  <div class="flex flex-wrap gap-2 mt-6">
-    <input id="search" placeholder="Search..." class="p-2 border rounded"/>
-    <input type="date" id="dateFilter" class="p-2 border rounded"/>
-    <select id="sort" class="p-2 border rounded">
-      <option value="">Sort</option>
-      <option value="amount">Amount</option>
-      <option value="date">Date</option>
-    </select>
-  </div>
-
-  <!-- Table -->
-  <div class="overflow-x-auto mt-4">
-    <table class="w-full bg-white rounded shadow">
-      <thead>
-        <tr class="bg-gray-200">
-          <th class="p-2">Date</th>
-          <th>Amount</th>
-          <th>Category</th>
-          <th>Type</th>
-          <th id="actionHeader">Action</th>
-        </tr>
-      </thead>
-      <tbody id="transactionTable"></tbody>
-    </table>
-  </div>
-
-  <!-- Insights -->
-  <div id="insights" class="mt-6 bg-white p-4 rounded shadow"></div>
-
-  <!-- Toast -->
-  <div id="toast" class="fixed bottom-5 right-5 bg-black text-white px-4 py-2 rounded hidden"></div>
-
-  <script src="data.js"></script>
-  <script src="script.js"></script>
+<!-- JS -->
+<script src="app.js"></script>
 </body>
 </html>
