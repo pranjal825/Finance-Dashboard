@@ -297,8 +297,11 @@ select option { background: var(--bg2); color: var(--text); }
 .modal-overlay {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s;
 }
+.modal-overlay.open {
+  opacity: 1;
+}
+
 .modal-overlay.open {
   opacity: 1;
   pointer-events: all;
