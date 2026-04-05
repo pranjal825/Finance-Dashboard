@@ -136,6 +136,12 @@ function getGridColor()  { return isDark() ? 'rgba(255,255,255,0.06)' : 'rgba(0,
 function nextId() {
   return transactions.reduce((max, t) => Math.max(max, t.id), 0) + 1;
 }
+function getRefDate() {
+    if (!transactions.length) return new Date();
+    const Latest = transactions.reduce((max,t) => t.date > max ? t.date : max, transactions[0].date);
+    return new Date(Latest);
+}
+
 
 /** Get filtered transactions for overview */
 function getOverviewFiltered() {
@@ -233,7 +239,7 @@ function toggleRoleDropdown() {
  */
 function updateStats() {
   const filtered = getOverviewFiltered();
-  const now  = new Date();
+  const now  = getRefDate();
   const curM = now.getMonth(),  curY = now.getFullYear();
   const prevM = curM === 0 ? 11 : curM - 1;
   const prevY = curM === 0 ? curY - 1 : curY;
@@ -300,7 +306,7 @@ function updateStats() {
 function buildTrendChart() {
   const filtered = getOverviewFiltered();
   const labels = [], incData = [], expData = [], balData = [];
-  const now = new Date();
+  const now = getRefDate();
 
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -357,7 +363,12 @@ function buildTrendChart() {
 
 /* ── 9b. Donut / Pie Chart (Overview) ── */
 function buildDonutChart() {
-  const filtered = getOverviewFiltered();
+  const filtered = transactions.filter(t => {
+    if (overviewSearch && !t.desc.toLowerCase().includes(overviewSearch) && !t.cat.toLowerCase().includes(overviewSearch)) return false;
+    if (overviewCat  && t.cat !== overviewCat)   return false;
+    if (overviewMonth && !t.date.startsWith(overviewMonth)) return false;
+    return true;
+  });
   const catTotals = {};
   filtered.filter(t => t.type === 'expense').forEach(t => {
     catTotals[t.cat] = (catTotals[t.cat] || 0) + t.amount;
@@ -402,7 +413,7 @@ function buildDonutChart() {
 /* ── 9c. Monthly Grouped Bar Chart (Insights) ── */
 function buildMonthlyChart() {
   const labels = [], incData = [], expData = [];
-  const now = new Date();
+  const now = getRefDate();
 
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
