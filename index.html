@@ -171,6 +171,36 @@
             View all →
           </button>
         </div>
+
+        <!-- Overview Filter Bar -->
+        <div class="flex flex-wrap gap-2 mb-4 items-center">
+          <input id="overviewSearchInput" type="text" placeholder="Search transactions…"
+            oninput="updateOverviewFilters()"
+            class="search-input flex-1 min-w-[160px] px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--bg2)] text-[var(--text)] text-[13px] outline-none transition-colors placeholder-[var(--text3)]" />
+
+          <select id="overviewFilterType" onchange="updateOverviewFilters()"
+            class="filter-select px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--bg2)] text-[var(--text2)] text-[13px] outline-none cursor-pointer">
+            <option value="">All Types</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+
+          <select id="overviewFilterCat" onchange="updateOverviewFilters()"
+            class="filter-select px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--bg2)] text-[var(--text2)] text-[13px] outline-none cursor-pointer">
+            <option value="">All Categories</option>
+          </select>
+
+          <select id="overviewFilterMonth" onchange="updateOverviewFilters()"
+            class="filter-select px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--bg2)] text-[var(--text2)] text-[13px] outline-none cursor-pointer">
+            <option value="">All Months</option>
+          </select>
+
+          <button onclick="clearOverviewFilters()"
+            class="px-3 py-2 rounded-xl border border-[var(--border2)] bg-[var(--bg2)] text-[var(--text2)] text-[13px] hover:text-[var(--text)] transition-all">
+            ✕ Clear
+          </button>
+        </div>
+
         <table class="txn-table w-full border-collapse">
           <thead>
             <tr>

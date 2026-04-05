@@ -47,6 +47,12 @@ let sortBy    = 'date';     // column currently sorted by
 let sortDir   = 'desc';     // 'asc' | 'desc'
 let editingId = null;       // id of transaction being edited, or null
 
+// Overview filters
+let overviewSearch = '';
+let overviewType   = '';
+let overviewCat    = '';
+let overviewMonth  = '';
+
 
 /* ================================================================
    3. MOCK / SEED DATA
@@ -140,6 +146,17 @@ function nextId() {
   return transactions.reduce((max, t) => Math.max(max, t.id), 0) + 1;
 }
 
+/** Get filtered transactions for overview */
+function getOverviewFiltered() {
+  return transactions.filter(t => {
+    if (overviewSearch && !t.desc.toLowerCase().includes(overviewSearch) && !t.cat.toLowerCase().includes(overviewSearch)) return false;
+    if (overviewType   && t.type !== overviewType)   return false;
+    if (overviewCat    && t.cat  !== overviewCat)    return false;
+    if (overviewMonth  && !t.date.startsWith(overviewMonth)) return false;
+    return true;
+  });
+}
+
 
 /* ================================================================
    6. NAVIGATION
@@ -172,6 +189,7 @@ function navigate(page, el) {
   // Lazy-build page-specific content
   if (page === 'insights')      buildInsights();
   if (page === 'transactions') { renderTransactions(); populateFilters(); }
+  if (page === 'overview')     { populateOverviewFilters(); updateStats(); }
 }
 
 
@@ -210,14 +228,15 @@ function setRole(r) {
  * Recalculates all summary card values and triggers chart rebuilds.
  */
 function updateStats() {
+  const filtered = getOverviewFiltered();
   const now  = new Date();
   const curM = now.getMonth(),  curY = now.getFullYear();
   const prevM = curM === 0 ? 11 : curM - 1;
   const prevY = curM === 0 ? curY - 1 : curY;
 
   /** Aggregate income and expenses for a given month/year */
-  function monthlyStats(m, y) {
-    const subset = transactions.filter(t => {
+  function monthlyStats(txns, m, y) {
+    const subset = txns.filter(t => {
       const d = new Date(t.date);
       return d.getMonth() === m && d.getFullYear() === y;
     });
@@ -227,11 +246,11 @@ function updateStats() {
     };
   }
 
-  const cur  = monthlyStats(curM,  curY);
-  const prev = monthlyStats(prevM, prevY);
+  const cur  = monthlyStats(filtered, curM,  curY);
+  const prev = monthlyStats(filtered, prevM, prevY);
 
-  const totalInc = transactions.filter(x => x.type === 'income') .reduce((a, b) => a + b.amount, 0);
-  const totalExp = transactions.filter(x => x.type === 'expense').reduce((a, b) => a + b.amount, 0);
+  const totalInc = filtered.filter(x => x.type === 'income') .reduce((a, b) => a + b.amount, 0);
+  const totalExp = filtered.filter(x => x.type === 'expense').reduce((a, b) => a + b.amount, 0);
   const balance  = totalInc - totalExp;
   const savings  = totalInc > 0 ? Math.round((balance / totalInc) * 100) : 0;
 
@@ -275,6 +294,7 @@ function updateStats() {
 
 /* ── 9a. Trend Line Chart (Overview) ── */
 function buildTrendChart() {
+  const filtered = getOverviewFiltered();
   const labels = [], incData = [], expData = [], balData = [];
   const now = new Date();
 
@@ -283,7 +303,7 @@ function buildTrendChart() {
     const m = d.getMonth(), y = d.getFullYear();
     labels.push(d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }));
 
-    const subset = transactions.filter(t => {
+    const subset = filtered.filter(t => {
       const dd = new Date(t.date);
       return dd.getMonth() === m && dd.getFullYear() === y;
     });
@@ -333,8 +353,9 @@ function buildTrendChart() {
 
 /* ── 9b. Donut / Pie Chart (Overview) ── */
 function buildDonutChart() {
+  const filtered = getOverviewFiltered();
   const catTotals = {};
-  transactions.filter(t => t.type === 'expense').forEach(t => {
+  filtered.filter(t => t.type === 'expense').forEach(t => {
     catTotals[t.cat] = (catTotals[t.cat] || 0) + t.amount;
   });
 
@@ -466,8 +487,9 @@ function txnRow(t, withEdit = true) {
 
 /* ── Recent transactions (Overview page, last 5) ── */
 function renderRecent() {
+  const filtered = getOverviewFiltered();
   const tbody  = document.getElementById('recentTbody');
-  const recent = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  const recent = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
   if (!recent.length) {
     tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">No transactions yet</div></div></td></tr>`;
@@ -498,6 +520,23 @@ function populateFilters() {
     }).join('');
 }
 
+/** Populate overview filters */
+function populateOverviewFilters() {
+  const cats   = [...new Set(transactions.map(t => t.cat))].sort();
+  const months = [...new Set(transactions.map(t => t.date.substring(0, 7)))].sort().reverse();
+
+  document.getElementById('overviewFilterCat').innerHTML =
+    '<option value="">All Categories</option>' +
+    cats.map(c => `<option>${c}</option>`).join('');
+
+  document.getElementById('overviewFilterMonth').innerHTML =
+    '<option value="">All Months</option>' +
+    months.map(m => {
+      const d = new Date(m + '-01');
+      return `<option value="${m}">${d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</option>`;
+    }).join('');
+}
+
 /** Reset all filters to their default state */
 function clearFilters() {
   document.getElementById('searchInput').value = '';
@@ -505,6 +544,28 @@ function clearFilters() {
   document.getElementById('filterCat').value   = '';
   document.getElementById('filterMonth').value = '';
   renderTransactions();
+}
+
+/** Reset overview filters */
+function clearOverviewFilters() {
+  document.getElementById('overviewSearchInput').value = '';
+  document.getElementById('overviewFilterType').value  = '';
+  document.getElementById('overviewFilterCat').value   = '';
+  document.getElementById('overviewFilterMonth').value = '';
+  overviewSearch = '';
+  overviewType   = '';
+  overviewCat    = '';
+  overviewMonth  = '';
+  updateStats();
+}
+
+/** Update overview filters and refresh */
+function updateOverviewFilters() {
+  overviewSearch = (document.getElementById('overviewSearchInput')?.value || '').toLowerCase();
+  overviewType   = document.getElementById('overviewFilterType')?.value  || '';
+  overviewCat    = document.getElementById('overviewFilterCat')?.value   || '';
+  overviewMonth  = document.getElementById('overviewFilterMonth')?.value || '';
+  updateStats();
 }
 
 /**
@@ -745,6 +806,7 @@ function saveTransaction() {
   updateStats();
   renderTransactions();
   populateFilters();
+  populateOverviewFilters();
 }
 
 /** Open modal in edit mode for a specific transaction */
@@ -761,6 +823,7 @@ function deleteTxn(id) {
   updateStats();
   renderTransactions();
   populateFilters();
+  populateOverviewFilters();
 }
 
 
@@ -836,4 +899,5 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Pre-populate filter dropdowns (hidden page, but needed for first visit)
   populateFilters();
+  populateOverviewFilters();
 });
