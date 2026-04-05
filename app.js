@@ -1,13 +1,4 @@
 /* ================================================================
-   app.js  —  Finio Finance Dashboard
-   Covers: state management, role-based UI, CRUD, charts,
-   filtering/sorting, insights, theme toggle, CSV export,
-   and localStorage persistence.
-================================================================ */
-
-'use strict';
-
-/* ================================================================
    1. CONSTANTS & LOOKUP MAPS
 ================================================================ */
 

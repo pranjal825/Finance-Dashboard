@@ -220,16 +220,25 @@ button:not(.sort-btn):active {
 .btn-accent {
   background: var(--accent);
   border: 1px solid var(--accent);
-  color: #0d1a00;
+  color: white;
   cursor: pointer;
   box-shadow: 0 0 0 rgba(0,0,0,0);
 }
 .btn-accent:hover {
-  background: var(--accent2);
-  border-color: var(--accent2);
+  background: var(--blue);
+  border-color: var(--blue);
+  color: white;
 }
 .btn-accent:active {
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+}
+
+/* Light mode button text */
+.light .btn-accent {
+  color: var(--blue);
+}
+.light .btn-accent:hover {
+  color: var(--blue);
 }
 
 
