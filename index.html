@@ -34,13 +34,16 @@
     </div>
 
     <!-- Role Switcher -->
-    <div class="mx-3 mt-4 px-3 py-3 rounded-xl bg-[var(--accent-dim)] border border-[var(--accent)]/30">
-      <div class="text-[11px] text-[var(--text3)] uppercase tracking-widest mb-1">Role</div>
-      <select id="roleSelect" onchange="setRole(this.value)"
-        class="w-full bg-transparent border-none text-[var(--accent)] font-semibold text-[13px] outline-none cursor-pointer appearance-none">
-        <option value="viewer">👁 Viewer</option>
-        <option value="admin" selected>⚡ Admin</option>
-      </select>
+    <div class="mx-3 mt-4 relative">
+      <div class="text-[11px] text-[var(--text3)] uppercase tracking-widest mb-1 px-3">Role</div>
+      <button id="roleButton" onclick="toggleRoleDropdown()"
+        class="w-full px-3 py-2 rounded-xl bg-[var(--accent-dim)] border border-[var(--accent)]/30 text-[var(--accent)] font-semibold text-[13px] outline-none cursor-pointer transition-all hover:bg-[var(--accent)]/20 hover:border-[var(--accent)]/50">
+        ⚡ Admin ▼
+      </button>
+      <div id="roleDropdown" class="hidden absolute top-full left-3 right-3 mt-1 bg-[var(--bg2)] border border-[var(--border)] rounded-xl shadow-lg z-10 transition-all duration-200">
+        <div onclick="setRole('admin')" class="role-dropdown-item px-3 py-2 text-[var(--text)] cursor-pointer">⚡ Admin</div>
+        <div onclick="setRole('viewer')" class="role-dropdown-item px-3 py-2 text-[var(--text)] cursor-pointer">👁 Viewer</div>
+      </div>
     </div>
 
     <!-- Navigation -->

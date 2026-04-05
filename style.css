@@ -143,6 +143,11 @@ select option { background: var(--bg2); color: var(--text); }
   border-color: rgba(90, 158, 0, 0.20);
 }
 
+/* Remove transitions in dark mode */
+:not(.light) .nav-item {
+  transition: none;
+}
+
 
 /* ================================================================
    5. THEME TOGGLE SWITCH
@@ -479,6 +484,19 @@ button:not(.sort-btn):active {
   }
 
   .page { padding: 16px; }
+}
+
+/* ================================================================
+   12. ROLE DROPDOWN
+================================================================ */
+.role-dropdown-item {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+.role-dropdown-item:hover {
+  background: rgba(200, 242, 100, 0.1);
+  transform: translateX(4px);
+  color: var(--accent);
 }
 
 @media (max-width: 480px) {

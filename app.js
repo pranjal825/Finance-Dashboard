@@ -206,6 +206,13 @@ function setRole(r) {
   role = r;
   const canEdit = r === 'admin';
 
+  // Update button text
+  const roleButton = document.getElementById('roleButton');
+  roleButton.textContent = r === 'admin' ? '⚡ Admin ▼' : '👁 Viewer ▼';
+
+  // Close dropdown
+  document.getElementById('roleDropdown').classList.add('hidden');
+
   // Show/hide Add buttons
   document.getElementById('addTxnBtn').style.display  = canEdit ? '' : 'none';
   document.getElementById('addTxnBtn2').style.display = canEdit ? '' : 'none';
@@ -216,6 +223,12 @@ function setRole(r) {
   // Re-render tables to add/remove edit controls
   renderTransactions();
   updateStats();
+}
+
+/** Toggle role dropdown visibility */
+function toggleRoleDropdown() {
+  const dropdown = document.getElementById('roleDropdown');
+  dropdown.classList.toggle('hidden');
 }
 
 
@@ -901,4 +914,13 @@ window.addEventListener('DOMContentLoaded', () => {
   // Pre-populate filter dropdowns (hidden page, but needed for first visit)
   populateFilters();
   populateOverviewFilters();
+
+  // Close role dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    const roleButton = document.getElementById('roleButton');
+    const roleDropdown = document.getElementById('roleDropdown');
+    if (!roleButton.contains(e.target) && !roleDropdown.contains(e.target)) {
+      roleDropdown.classList.add('hidden');
+    }
+  });
 });
