@@ -166,5 +166,8 @@ In `style.css` → `:root` (Section 1):
 
 ## 📤 CSV Export
 
-Click **↓ Export** on the Overview page. Downloads a `.csv` file of all currently filtered transactions with columns: `ID, Description, Amount, Type, Category, Date`.
+Click **↓ Export** on the Overview page. Downloads a `.csv` file of all currently filtered transactions with columns: `ID, Description, Amount, Type, Category, Date`.\\
+
+
+
 *Made with ❤️by Pranjal *
