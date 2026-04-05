@@ -867,8 +867,9 @@ function restoreTheme() {
 ================================================================ */
 
 function exportData() {
+  const filtered = getOverviewFiltered();
   const headers = ['ID', 'Description', 'Amount', 'Type', 'Category', 'Date'];
-  const rows    = transactions.map(t => [t.id, t.desc, t.amount, t.type, t.cat, t.date]);
+  const rows    = filtered.map(t => [t.id, t.desc, t.amount, t.type, t.cat, t.date]);
   const csv     = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
 
   const a   = document.createElement('a');
