@@ -377,7 +377,7 @@ function buildDonutChart() {
   const sorted = Object.entries(catTotals).sort((a, b) => b[1] - a[1]).slice(0, 6);
   const total  = Object.values(catTotals).reduce((a, b) => a + b, 0);
 
-  document.getElementById('donutTotal').textContent = fmt(total);
+  //cument.getElementById('donutTotal').textContent = fmt(total);
 
   const ctx = document.getElementById('donutChart').getContext('2d');
   const C   = getColors();
@@ -409,7 +409,28 @@ function buildDonutChart() {
     },
   });
 }
-
+    plugins: [{                   
+      id: 'centerText',
+      afterDraw(chart) {
+        const { ctx } = chart;
+        const meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data || !meta.data[0]) return;
+        const arc = meta.data[0];
+        const cx  = arc.x;
+        const cy  = arc.y;
+        ctx.save();
+        ctx.font         = 'bold 20px sans-serif';
+        ctx.fillStyle    = isDark() ? '#ffffff' : '#111111';
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(fmt(total), cx, cy - 10);
+        ctx.font      = '12px sans-serif';
+        ctx.fillStyle = getTextColor();
+        ctx.fillText('expenses', cx, cy + 14);
+        ctx.restore();
+      }
+    }]
+  
 /* ── 9c. Monthly Grouped Bar Chart (Insights) ── */
 function buildMonthlyChart() {
   const labels = [], incData = [], expData = [];
