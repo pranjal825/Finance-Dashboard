@@ -171,6 +171,18 @@ select option { background: var(--bg2); color: var(--text); }
 /* ================================================================
    6. SUMMARY CARDS  (left-border accent)
 ================================================================ */
+.card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+  will-change: transform, box-shadow;
+}
+.card:hover,
+.insight-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.18);
+  border-color: rgba(200, 242, 100, 0.16);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
 .card-balance { border-left: 3px solid var(--accent); }
 .card-income  { border-left: 3px solid var(--blue); }
 .card-expense { border-left: 3px solid var(--red); }
@@ -189,10 +201,18 @@ select option { background: var(--bg2); color: var(--text); }
   border: 1px solid var(--accent);
   color: #0d1a00;
   cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease, color 0.22s ease;
+  box-shadow: 0 0 0 rgba(0,0,0,0);
 }
 .btn-accent:hover {
   background: var(--accent2);
   border-color: var(--accent2);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+}
+.btn-accent:active {
+  transform: translateY(0);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
 }
 
 
