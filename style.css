@@ -179,8 +179,12 @@ select option { background: var(--bg2); color: var(--text); }
 .insight-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 22px 45px rgba(0, 0, 0, 0.18);
-  border-color: rgba(200, 242, 100, 0.16);
-  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(200, 242, 100, 0.35);
+  background-color: rgba(200, 242, 100, 0.16);
+}
+
+.card-balance:hover {
+  background-color: rgba(200, 242, 100, 0.16);
 }
 
 .card-balance { border-left: 3px solid var(--accent); }
@@ -196,22 +200,30 @@ select option { background: var(--bg2); color: var(--text); }
 /* ================================================================
    7. BUTTONS
 ================================================================ */
+button:not(.sort-btn) {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease, color 0.22s ease;
+}
+button:not(.sort-btn):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+  background: rgba(200, 242, 100, 0.08);
+}
+button:not(.sort-btn):active {
+  transform: translateY(0);
+}
+
 .btn-accent {
   background: var(--accent);
   border: 1px solid var(--accent);
   color: #0d1a00;
   cursor: pointer;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease, color 0.22s ease;
   box-shadow: 0 0 0 rgba(0,0,0,0);
 }
 .btn-accent:hover {
   background: var(--accent2);
   border-color: var(--accent2);
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
 }
 .btn-accent:active {
-  transform: translateY(0);
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
 }
 
@@ -305,8 +317,21 @@ select option { background: var(--bg2); color: var(--text); }
 /* ================================================================
    10. FILTERS
 ================================================================ */
-.search-input:focus  { border-color: var(--accent); }
-.filter-select:focus { border-color: var(--accent); }
+.search-input,
+.filter-select {
+  transition: border-color 0.22s ease, background 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
+}
+.search-input:hover,
+.filter-select:hover {
+  border-color: rgba(200, 242, 100, 0.25);
+  background: rgba(255, 255, 255, 0.04);
+}
+.search-input:focus,
+.filter-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(242, 230, 100, 0.1);
+  outline: none;
+}
 
 .search-input::placeholder { color: var(--text3); }
 
