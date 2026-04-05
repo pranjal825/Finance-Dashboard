@@ -241,6 +241,29 @@ button:not(.sort-btn):active {
   color: var(--blue);
 }
 
+/* Export button */
+.btn-export {
+  background: var(--bg3);
+  color: white;
+}
+.btn-export:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: white;
+}
+
+/* Light mode export button */
+.light .btn-export {
+  background: white;
+  border-color: var(--border);
+  color: black;
+}
+.light .btn-export:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: white;
+}
+
 
 /* ================================================================
    8. CHART CONTAINERS
